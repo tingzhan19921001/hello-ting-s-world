@@ -1,0 +1,129 @@
+#base on relational schema, now let’s build up tables
+#location-coord
+CREATE TABLE Locationcoord(
+  FMID INT,
+  MarketName TEXT,
+  street TEXT,
+  city TEXT,
+  County TEXT,
+  State TEXT,
+  zip INT,
+  x REAL,
+  y REAL,
+  Location TEXT,
+  coordination TEXT
+)
+
+#payment
+CREATE TABLE Payment(
+  FMID INT,
+  MarketName TEXT,
+  Credit TEXT,
+  WIC TEXT,
+  WICcash TEXT,
+  SFMNP TEXT,
+  SNAP TEXT
+)
+
+#producttype
+CREATE TABLE "Producttype"(
+  FMID INT,
+  MarketName,
+  Organic,
+  Bakedgoods,
+  Cheese,
+  Crafts,
+  Flowers,
+  Eggs,
+  Seafood,
+  Herbs,
+  Vegetables,
+  Honey,
+  Jams,
+  Maple,
+  Meat,
+  Nursery,
+  Nuts,
+  Plants,
+  Poultry,
+  Prepared,
+  Soap,
+  Trees,
+  Wine,
+  Coffee,
+  Beans,
+  Fruits,
+  Grains,
+  Juices,
+  PetFood,
+  Tofu,
+  WildHarvested
+)
+
+#SeasonDate
+CREATE TABLE SeasonDate(
+  FMID INT,
+  MarketName TEXT,
+  Season1Date TEXT,
+  Season1Time TEXT,
+  Season2Date TEXT,
+  Season2Time TEXT,
+  Season3Date TEXT,
+  Season3Time TEXT,
+  Season4Date TEXT,
+  Season4Time TEXT
+)
+
+#SocialMedia
+CREATE TABLE SocialMedia(
+  FMID INT,
+  MarketName TEXT,
+  Website TEXT,
+  Facebook TEXT,
+  Twitter TEXT,
+  Youtube TEXT,
+  OtherMedia TEXT
+)
+
+# Delete where street is null
+select count(*) from farmersmarket WHERE street IS NULL;DELETE FROM farmersmarket WHERE street IS NULL;
+
+# delete all products that are null
+
+select count(*) FROM farmersmarket WHERE bakedgoods IS NULL AND cheese IS NULL AND crafts IS NULL AND flowers IS NULL AND eggs IS NULL AND seafood IS NULL AND herbs IS NULL AND Vegetables IS NULL AND honey IS NULL AND jams IS NULL AND maple IS NULL and meat IS NULL AND nursery IS NULL AND nuts IS NULL AND plants IS NULL AND poultry IS NULL AND prepared IS NULL AND soap IS NULL AND trees IS NULL AND wine IS NULL AND coffee IS NULL AND beans IS NULL AND fruits IS NULL AND grains IS NULL AND juices IS NULL AND mushrooms IS NULL AND petfood IS NULL AND tofu IS NULL AND wildharvested IS NULL;
+
+DELETE FROM farmersmarket WHERE bakedgoods IS NULL AND cheese IS NULL AND crafts IS NULL AND flowers IS NULL AND eggs IS NULL AND seafood IS NULL AND herbs IS NULL AND Vegetables IS NULL AND honey IS NULL AND jams IS NULL AND maple IS NULL and meat IS NULL AND nursery IS NULL AND nuts IS NULL AND plants IS NULL AND poultry IS NULL AND prepared IS NULL AND soap IS NULL AND trees IS NULL AND wine IS NULL AND coffee IS NULL AND beans IS NULL AND fruits IS NULL AND grains IS NULL AND juices IS NULL AND mushrooms IS NULL AND petfood IS NULL AND tofu IS NULL AND wildharvested IS NULL;
+
+# delete all season date time are null
+
+SELECT count(*) FROM farmersmarket WHERE Season1time IS NULL AND season2time IS NULL AND season3time IS NULL AND season4time IS NULL;
+
+
+DELETE FROM farmersmarket WHERE Season1time IS NULL AND season2time IS NULL AND season3time IS NULL AND season4time IS NULL;
+
+#delete payment are all ’N’
+DELETE FROM farmersmarket WHERE credit = 'N' AND wic = 'N' AND wiccash = 'N' AND SFMNP = 'N' AND SNAP = 'N';
+
+
+# Integrity Constraints
+# if two entry have same FMID, other information should be the same
+# if they have the same FMID, they should have same market name. find the one that break this IC.
+icv_marketname(FMID1,FMID2,mktname1,mktname2):- farmersmarket(FMID1,mktname1),farmersmarket(FMID2,mktname2), FMID1 = FMID2, mktname1 != mktname2.
+
+SELECT FMID,marketname from farmersmarket where FMID in (select FMID from farmersmarket group by FMID having count(FMID) >1);
+#you can see that the results of FMID is zero, meaning there is no duplicate FMID
+# if the coordination are the same, other columns in the the Locationcoord should be same
+# if the coordination are the same, the column street should be the same.
+icv_location(coordination1, coordination2, street1, street2):- locationcoord(coordination1, street1), locationcoord(coordination2,street2),coordination1 = coordination2, street1 != street2.
+
+SELECT FMID, marketname, coordination, street FROM locationcoord WHERE coordination IN (SELECT coordination FROM locationcoord GROUP BY coordination HAVING count(coordination) >1);
+
+# other exploration
+SELECT twitter, count(twitter), FMID,  marketname from farmersmarket GROUP BY twitter  Having twitter is not null order by count(twitter) DESC;
+
+SELECT Facebook, count(Facebook), FMID,  marketname from farmersmarket GROUP BY Facebook  Having twitter is not null order by count(Facebook) DESC;
+
+SELECT website, count(website), FMID,  marketname from farmersmarket GROUP BY website  Having website is not null order by count(website) DESC;
+
+
+
